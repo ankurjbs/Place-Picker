@@ -1,15 +1,30 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
-import Places from './components/Places.jsx';
-import { AVAILABLE_PLACES } from './data.js';
-import Modal from './components/Modal.jsx';
-import DeleteConfirmation from './components/DeleteConfirmation.jsx';
-import logoImg from './assets/logo.png';
+import Places from "./components/Places.jsx";
+import { AVAILABLE_PLACES } from "./data.js";
+import Modal from "./components/Modal.jsx";
+import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
+import logoImg from "./assets/logo.png";
+import { sortPlacesByDistance } from "./loc.js";
 
 function App() {
   const modal = useRef();
   const selectedPlace = useRef();
   const [pickedPlaces, setPickedPlaces] = useState([]);
+
+  const [availablePlaces, setAvailablePlaces] = useState([]);
+
+  // following code will be executed infinite time because after setAvailablePlaces state update, App com will re-excuted then following code will be  reexcuted again. So using useEffet we can rid of this problem . because React executed useEffect at last means after the comp fn is done excuting. But when app component is finished excuting useEffect will again excuting. So this can be rid of using 2nd parameter which known as array of dependencies. And first parameter is call back fn which have some effect code. React looks dependencies array which means it will be excuted again if the dependencies values changed.
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const sortedPlaces = sortPlacesByDistance(
+        AVAILABLE_PLACES,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      setAvailablePlaces(sortedPlaces);
+    });
+  }, []);
 
   function handleStartRemovePlace(id) {
     modal.current.open();
@@ -57,13 +72,15 @@ function App() {
       <main>
         <Places
           title="I'd like to visit ..."
-          fallbackText={'Select the places you would like to visit below.'}
+          fallbackText={"Select the places you would like to visit below."}
           places={pickedPlaces}
           onSelectPlace={handleStartRemovePlace}
         />
         <Places
           title="Available Places"
-          places={AVAILABLE_PLACES}
+          // places={AVAILABLE_PLACES} // this changed because we are using side effects
+          places={availablePlaces}
+          fallbackText="Sorting places by distance..."
           onSelectPlace={handleSelectPlace}
         />
       </main>
