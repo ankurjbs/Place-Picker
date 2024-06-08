@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const Modal = function Modal({ open, children }) {
   const dialog = useRef();
@@ -14,20 +14,21 @@ const Modal = function Modal({ open, children }) {
   //     },
   //   };
   // });
-useEffect(()=>{
-if(open){
-  dialog.current.showModal();
-}else{
-  dialog.current.close();
-}
-},[open]);
+  useEffect(() => {
+    if (open) {
+      dialog.current.showModal();
+    } else {
+      dialog.current.close();
+    }
+  }, [open]);
 
   return createPortal(
     <dialog className="modal" ref={dialog}>
-      {children}
+      {/* insert condition bcz delete component is rendering in DOM always */}
+      {open ? children : null}
     </dialog>,
-    document.getElementById('modal')
+    document.getElementById("modal")
   );
-}
+};
 
 export default Modal;
