@@ -16,7 +16,7 @@ function App() {
 
   // following code will be executed infinite time because after setAvailablePlaces state update, App com will re-excuted then following code will be  reexcuted again. So using useEffet we can rid of this problem . because React executed useEffect at last means after the comp fn is done excuting. But when app component is finished excuting useEffect will again excuting. So this can be rid of using 2nd parameter which known as array of dependencies. And first parameter is call back fn which have some effect code. React looks dependencies array which means it will be excuted again if the dependencies values changed.
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
+    navigator.geolocation.getCurrentPosition((position) => { // this code is provided by the browser navigator
       const sortedPlaces = sortPlacesByDistance(
         AVAILABLE_PLACES,
         position.coords.latitude,
@@ -43,6 +43,12 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+    // this localStorage is provided by the browser neither react nor JS , allows us to use the setItem method to store some data in the browser's storage and that data will also be avialable if we leave the website and come to later or reload the website.
+    const storeIds = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
+    if(storeIds.indexOf(id) === -1){
+      localStorage.setItem('selectedPlaces',JSON.stringify([id,...storeIds]));
+    }
+    
   }
 
   function handleRemovePlace() {
